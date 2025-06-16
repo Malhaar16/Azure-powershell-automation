@@ -2,17 +2,23 @@ name: Azure PowerShell CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Install PowerShell
-      uses: PowerShell/PowerShell@v7.5.1
+    - name: Checkout repo
+      uses: actions/checkout@v2
 
-    - name: Run PowerShell Script
+    - name: Install Azure PowerShell
+      run: |
+        Install-Module -Name Az -Force -Scope CurrentUser
+        Import-Module Az
       shell: pwsh
-      run: pwsh ./CreateVM.ps1
+
+    - name: Run CreateVM script
+      run: ./CreateVM.ps1
+      shell: pwsh
