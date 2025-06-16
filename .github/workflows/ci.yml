@@ -6,19 +6,26 @@ on:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Install Azure PowerShell
-      run: |
-        Install-Module -Name Az -Force -Scope CurrentUser
-        Import-Module Az
-      shell: pwsh
+      - name: Install Azure PowerShell
+        run: |
+          Install-Module -Name Az -Force -Scope CurrentUser -AllowClobber
+        shell: pwsh
 
-    - name: Run CreateVM script
-      run: ./CreateVM.ps1
-      shell: pwsh
+      - name: Login to Azure
+        run: |
+          $securePassword = ConvertTo-SecureString "${{ secrets.AZURE_CLIENT_SECRET }}" -AsPlainText -Force
+          $credentials = New-Object -TypeName System.Management.Automation.PSCredential `
+              -ArgumentList "${{ secrets.AZURE_CLIENT_ID }}", $securePassword
+          Connect-AzAccount -ServicePrincipal -Credential $credentials -Tenant "${{ secrets.AZURE_TENANT_ID }}"
+        shell: pwsh
+
+      - name: Run CreateVM.ps1
+        run: ./CreateVM.ps1
+        shell: pwsh
