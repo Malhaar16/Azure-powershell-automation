@@ -8,6 +8,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
 
     steps:
       - name: Checkout code
@@ -20,10 +24,9 @@ jobs:
 
       - name: Login to Azure
         run: |
-          $securePassword = ConvertTo-SecureString "${{ secrets.AZURE_CLIENT_SECRET }}" -AsPlainText -Force
-          $credentials = New-Object -TypeName System.Management.Automation.PSCredential `
-              -ArgumentList "${{ secrets.AZURE_CLIENT_ID }}", $securePassword
-          Connect-AzAccount -ServicePrincipal -Credential $credentials -Tenant "${{ secrets.AZURE_TENANT_ID }}"
+          $securePassword = ConvertTo-SecureString $env:AZURE_CLIENT_SECRET -AsPlainText -Force
+          $credentials = New-Object System.Management.Automation.PSCredential $env:AZURE_CLIENT_ID, $securePassword
+          Connect-AzAccount -ServicePrincipal -Credential $credentials -Tenant $env:AZURE_TENANT_ID
         shell: pwsh
 
       - name: Run CreateVM.ps1
