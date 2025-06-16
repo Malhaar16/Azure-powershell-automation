@@ -9,9 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - name: Install PowerShell
+      uses: PowerShell/PowerShell@v7.5.1
 
     - name: Run PowerShell Script
       shell: pwsh
-      run: ./CreateVM.ps1
+      run: pwsh ./CreateVM.ps1
